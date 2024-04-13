@@ -39,11 +39,71 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-  const express = require('express');
-  const bodyParser = require('body-parser');
-  
-  const app = express();
-  
-  app.use(bodyParser.json());
-  
-  module.exports = app;
+const express = require('express');
+const bodyParser = require('body-parser');
+const { v4: uuidv4 } = require('uuid');
+
+const app = express();
+
+const todos = [];
+
+app.use(bodyParser.json());
+
+app.put('/todos/:id', (req, res) => {
+  let id = req.params.id;
+	let flag = false;
+  todos.forEach((td) => {
+		if(td.id === id){
+			td.completed = false;
+			flag = true;
+		}
+	})
+  if(flag)
+    res.sendStatus(200);
+  else
+    res.status(404).send('Not Found');
+})
+
+app.delete('/todos/:id', (req, res) => {
+  let id = req.params.id;
+	let flag = false;
+	for(let i=0; i<todos.length; i++){
+		if(todos[i].id === id){
+			todos.splice(i, 1);
+			flag = true;
+			break;
+		}
+	}
+  if(flag)
+    res.sendStatus(200);
+  else
+    res.status(404).send('Not Found');
+})
+
+app.get('/todos', (req, res) => {
+	res.status(200).json(todos);
+})
+
+app.get('/todos/:id', (req, res) => {
+	let id = req.params.id;
+	let todo = todos.find((e) => { return e.id === id });
+	console.log(JSON.stringify(todo, null, 2));
+	if(todo)
+		res.status(200).json(todo);
+	else
+		res.status(404).send('Not Found');
+})
+
+app.post('/todos', (req, res) => {
+	let todo = req.body;
+	let id = uuidv4();
+	todo['id'] = id;
+	todos.push(todo);
+  res.status(201).json({ 'id': id });	
+})
+
+app.use((req, res) => {
+  res.status(404).send('Route not found');
+});
+
+module.exports = app;

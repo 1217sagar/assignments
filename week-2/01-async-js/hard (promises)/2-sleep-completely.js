@@ -5,6 +5,15 @@
  */
 
 function sleep(milliseconds) {
+	//sleep(Time in ms).then(() => {
+		//// code
+	//})	
+
+	return new Promise(resolve => {
+		setTimeout(() => {
+			resolve();
+		}, milliseconds)
+	});
 }
 
 module.exports = sleep;
